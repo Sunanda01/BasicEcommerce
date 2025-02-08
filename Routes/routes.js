@@ -22,7 +22,7 @@ routes.delete('/delete-product/:id',verifyAccessToken,adminAuth,ProductControlle
 //cart Routes
 routes.post('/add-to-cart',verifyAccessToken,CartController.addToCart);
 routes.get('/get-cart-product',verifyAccessToken,CartController.getCartProduct);
-routes.put('update-quantity/:id',verifyAccessToken,CartController.updateQuantity);
-routes.delete('remove-all-from-cart',verifyAccessToken,CartController.removeAllFromCart);
+routes.put('/update-quantity/:id',verifyAccessToken,CartController.updateQuantity);
+routes.delete('/remove-from-cart',verifyAccessToken,CartController.removeFromCart);
 
 module.exports=routes;

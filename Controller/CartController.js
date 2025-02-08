@@ -1,16 +1,14 @@
 const Product = require('../Model/Product');
-const User=require('../Model/User');
-
 const CartController={
     async addToCart(req,res){
         try{
             const {productId}=req.body;
             const user=req.user;
             const existingItems=user.cartItems.find((item)=>item.id===productId);
-            if(existingItems) item+=1;
+            if(existingItems) existingItems.quantity+=1;
             else user.cartItems.push(productId);
             await user.save();
-            return res.json({success:true,msg:"Added To Cart"},user.cartItems);
+            return res.json({success:true,msg:"Added To Cart",details:user.cartItems});
         }
         catch(err){
             return res.json({success:false,msg:"Failed To Add To Cart"});
@@ -19,9 +17,9 @@ const CartController={
 
     async getCartProduct(req,res){
         try{
-            const product=await Product.find({_id: {$in: req.user.cartItems}});
-            const cartItems=product.map((products)=>{
-                const item=req.user.cartItems.find((cartItem)=>cartItem.id===products.id);
+            const products=await Product.find({_id: {$in: req.user.cartItems}});
+            const cartItems=products.map((product)=>{
+                const item=req.user.cartItems.find((cartItem)=>cartItem.id===product.id);
                 return {...product.toJSON(),quantity:item.quantity};
             })
             return res.json({success:true,cartItems});
@@ -34,15 +32,14 @@ const CartController={
     async updateQuantity(req,res){
         try{
             const {id:productId}=req.params;
-            const quantity=req.body;
+            const {quantity}=req.body;
             const user=req.user;
-            const existingItems=user.cartItems.find((item)=>item.id===productId);
+            const existingItems=user.cartItems.find((item)=>item.id === productId);
             if(existingItems){
-                if(quantity===0){
-                    user.cartItems=user.cartItems.filter((item)=>item.id!=productId);
-                    await user.save();
-                    return res.json({success:true},user.cartItems);
-                }
+                if(quantity === 0) user.cartItems=user.cartItems.filter((item)=>item.id !== productId);
+                else existingItems.quantity=quantity;   
+                await user.save();
+                return res.json({success:true, cartItems:user.cartItems});
             }
         }
         catch(err){
@@ -50,14 +47,14 @@ const CartController={
         }
     },
 
-    async removeAllFromCart(req,res){
+    async removeFromCart(req,res){
         try{
             const {productId}=req.body;
             const user=req.user;
             if(!productId) user.cartItems=[];
-            else user.cartItems=user.cartItems.filter((item)=>item.id!=productId);
+            else user.cartItems=user.cartItems.filter((item)=>item.id !== productId);
             await user.save();
-            return res.json({success:true,msg:"Item removed From Cart"},user.cartItems);
+            return res.json({success:true,msg:"Item removed From Cart",cartItems:user.cartItems});
         }
         catch(err){
             return res.json({success:false,msg:"Failed to Remove from Cart"});
