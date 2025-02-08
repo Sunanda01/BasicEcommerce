@@ -4,7 +4,7 @@ const cloudinary=require('../Utils/cloudinary');
 async function cacheFeaturedProduct(req,res){
     try{
         const featuredProduct=await Product.find({isFeatured:true}).lean();
-        await client.set("featuredProduct",JSON.stringify(featuredProduct));
+        await client.set("featuredProduct",JSON.stringify(featuredProduct),"EX",1*24*60*60);
     }
     catch(err){
         return res.json({success:false,msg:"Unable to save Featured Product in Redis DB"});
@@ -55,7 +55,7 @@ const ProductController={
                     return res.json({success:false,msg:"Error in Deleting Product Image from Cloudinary"});
                 }
             }
-            await Product.deleteOne({_id:id});
+            await product.deleteOne({_id:id});
             return res.json({success:true,msg:"Product Deleted Successfully"});
         }
         catch(err){

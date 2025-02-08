@@ -1,8 +1,10 @@
 const routes=require('express').Router();
 const UserController=require('../Controller/UserController');
+const ProductController=require('../Controller/ProductController');
+const CartController=require('../Controller/CartController');
 const verifyToken=require('../Middleware/verifyToken');
 const {verifyAccessToken,adminAuth}=require('../Middleware/AuthMiddleware');
-const ProductController=require('../Controller/ProductController');
+
 //User Routes
 routes.post('/register',UserController.register);
 routes.post('/login',UserController.login);
@@ -11,10 +13,16 @@ routes.post('/logout',verifyToken,UserController.logout);
 
 //Product Routes
 routes.post('/create-Product',verifyAccessToken,adminAuth,ProductController.createProduct);
-routes.get('/get-All-Product',verifyAccessToken,adminAuth,ProductController.getAllProduct);
-routes.get('/get-Product-Category/:category',ProductController.getProductCategory);
-routes.get('/get-Featured-Product',ProductController.getFeaturedProduct);
-routes.patch('/toggle-Featured-Product/:id',verifyAccessToken,adminAuth,ProductController.toggleFeaturedProduct);
-routes.delete('/delete-Product/:id',verifyAccessToken,adminAuth,ProductController.deleteProduct);
+routes.get('/get-all-Product',verifyAccessToken,adminAuth,ProductController.getAllProduct);
+routes.get('/get-product-category/:category',ProductController.getProductCategory);
+routes.get('/get-featured-product',ProductController.getFeaturedProduct);
+routes.patch('/toggle-featured-product/:id',verifyAccessToken,adminAuth,ProductController.toggleFeaturedProduct);
+routes.delete('/delete-product/:id',verifyAccessToken,adminAuth,ProductController.deleteProduct);
+
+//cart Routes
+routes.post('/add-to-cart',verifyAccessToken,CartController.addToCart);
+routes.get('/get-cart-product',verifyAccessToken,CartController.getCartProduct);
+routes.put('update-quantity/:id',verifyAccessToken,CartController.updateQuantity);
+routes.delete('remove-all-from-cart',verifyAccessToken,CartController.removeAllFromCart);
 
 module.exports=routes;
