@@ -16,10 +16,5 @@ const UserSchema=new mongoose.Schema({
         enum:["customer","admin"],
         default:"customer"
     }
-    // isVerified:{type:Boolean,default:false},
-    // verifyOtp:{type:String},
-    // verifyOtpExpiry:{type:Number,default:0},
-    // resetOtp:{type:String},
-    // resetOtpExpiry:{type:Number,default:0}
 },{timestamps:true});
 module.exports=mongoose.model('Users',UserSchema);

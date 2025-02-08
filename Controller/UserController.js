@@ -33,17 +33,16 @@ const UserController={
     async refreshToken(req,res){
         try{
             const refreshToken=req.cookies.refreshToken;
-            if(!refreshToken) return res.json({success:false,msg:"No Refresh Token Found"});
-            const decodedToken=jwt.verify(refreshToken,REFRESHJWTHASHVALUE);
-            const storedToken=await client.get(`${decodedToken.id}`);
+            const id=req.user.id;
+            const storedToken=await client.get(`${id}`);
             if(refreshToken!==storedToken) return res.json({success:false,msg:"Invalid Token"});
-            const accessToken=jwt.sign({id:decodedToken.id},JWTHASHVALUE,{expiresIn:JWTTOKENEXPIRY});
+            const accessToken=jwt.sign({id},JWTHASHVALUE,{expiresIn:JWTTOKENEXPIRY});
             return res
             .cookie("accessToken",accessToken,accessTokenOption)
             .json({success:true,msg:"Token Refreshed successfully"});
         }
         catch(err){
-            return res.json({success:false,msg:"failed to Generate Token"});
+            return res.json({success:false,msg:"Failed to Generate Token"});
         }
     },
 
@@ -94,11 +93,8 @@ const UserController={
 
     async logout(req,res){
         try{
-            const refreshToken=req.cookies.refreshToken;
-            if(!refreshToken) return res.json({success:false,msg:"No Refresh Token Found"});
-            const decodedToken=jwt.verify(refreshToken,REFRESHJWTHASHVALUE);
-            await client.del(`${decodedToken.id}`);
-            
+            const id=req.user.id;
+            await client.del(`${id}`);
             return res
             .clearCookie("refreshToken")
             .clearCookie("accessToken")
