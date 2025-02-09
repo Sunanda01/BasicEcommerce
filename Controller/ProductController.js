@@ -1,6 +1,6 @@
 const Product=require('../Model/Product');
 const client=require('../Utils/redis');
-const cloudinary=require('../Utils/cloudinary');
+const cloudinary=require('../Service/cloudinary');
 async function cacheFeaturedProduct(req,res){
     try{
         const featuredProduct=await Product.find({isFeatured:true}).lean();
