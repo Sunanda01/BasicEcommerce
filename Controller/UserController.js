@@ -103,6 +103,22 @@ const UserController={
         catch(err){
             return res.json({success:false,msg:"Something Went Wrong"});
         }
+    },
+
+    async getUser(req,res){
+        try{
+            const user=req.user;
+            res.json({success:true,user:{
+                id:user._id,
+                name:user.name,
+                email:user.email,
+                role:user.role,
+                cartItems:user.cartItems,
+            }});
+        }
+        catch(err){
+            res.json({success:false,msg:"Failed to get User"});
+        }      
     }
 }
 module.exports=UserController;

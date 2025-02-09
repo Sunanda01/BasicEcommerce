@@ -13,6 +13,7 @@ routes.post('/register',UserController.register);
 routes.post('/login',UserController.login);
 routes.post('/refresh-Token',verifyToken,UserController.refreshToken);
 routes.post('/logout',verifyToken,UserController.logout);
+routes.get('/get-user',verifyAccessToken,UserController.getUser);
 
 //Product Routes
 routes.post('/create-Product',verifyAccessToken,adminAuth,ProductController.createProduct);
@@ -49,7 +50,7 @@ routes.get("/analysis-data",verifyAccessToken,adminAuth,async(req,res)=>{
         });
     }
     catch(err){
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(500).json({ message: "Server error", err: err.message });
     }
 })
 
