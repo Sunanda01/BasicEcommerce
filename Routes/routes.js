@@ -22,6 +22,7 @@ routes.get('/get-product-category/:category',ProductController.getProductCategor
 routes.get('/get-featured-product',ProductController.getFeaturedProduct);
 routes.patch('/toggle-featured-product/:id',verifyAccessToken,adminAuth,ProductController.toggleFeaturedProduct);
 routes.delete('/delete-product/:id',verifyAccessToken,adminAuth,ProductController.deleteProduct);
+routes.get("/recommendations", ProductController.getRecommendedProducts);
 
 //cart Routes
 routes.post('/add-to-cart',verifyAccessToken,CartController.addToCart);

@@ -65,7 +65,7 @@ const UserController={
             return res
             .cookie("refreshToken",refreshToken,refreshTokenOption)
             .cookie("accessToken",accessToken,accessTokenOption)
-            .json({success:true,msg:"User Profile Created",name,email});
+            .json({success:true,msg:"User Profile Created",name,email,role:data.role});
         }catch(err){
             return res.json({success:false,msg:"Failed to Save User"});
         }
@@ -84,7 +84,12 @@ const UserController={
             return res
             .cookie("refreshToken",refreshToken,refreshTokenOption)
             .cookie("accessToken",accessToken,accessTokenOption)
-            .json({success:true,msg:"Login Successfully"});
+            .json({success:true,msg:"Login Successfully",
+                name:user.name,
+                email:user.email,
+                role:user.role,
+                cartItems:user.cartItems
+            });
         }
         catch(err){
             return res.json({success:false,msg:"Login Failed"});

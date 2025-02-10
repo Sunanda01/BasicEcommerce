@@ -15,15 +15,15 @@ const ProductController={
         try{
             const {name,description,price,image,category}=req.body;
             let cloudinaryRes=null;
-            if(image) cloudinaryRes=await cloudinary.UploadStream.upload(image,{folder:"products"});
+            if(image) cloudinaryRes=await cloudinary.uploader.upload(image,{folder:"products"});
             const product=await Product.create({
                 name,
                 description,
                 price,
-                image:cloudinaryRes?.secure_url ? cloudinaryRes?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Sh209MMxKFXtyWOKLVXe-JjSc7_eFz-p6g&s",
+                image:cloudinaryRes?.secure_url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Sh209MMxKFXtyWOKLVXe-JjSc7_eFz-p6g&s",
                 category
             })
-            res.json({success:true,msg:"Product Added",product});
+            return res.json({success:true,msg:"Product Added",product});
         }
         catch(err){
             return res.json({success:false,msg:"Failed to Create Product"});
@@ -32,8 +32,8 @@ const ProductController={
 
     async getAllProduct(req,res){
         try{
-            const product=await Product.find({});
-            return res.json({success:true,product});
+            const products=await Product.find({});
+            return res.json({success:true,products});
         }
         catch(err){
             return res.json({success:false,msg:"Unable to Access Product"});
@@ -44,10 +44,10 @@ const ProductController={
     async deleteProduct(req,res){
         try{
             const {id}=req.params;
-            const product=await Product.findById({_id:id});
-            if(!product) return res.json({success:false,msg:"Product Not Found"});
-            if(product.image) {
-                const publicId=product.image.split("/").pop().split(".")[0];
+            const products=await Product.findById({_id:id});
+            if(!products) return res.json({success:false,msg:"Product Not Found"});
+            if(products.image) {
+                const publicId=products.image.split("/").pop().split(".")[0];
                 try {
                     await cloudinary.uploader.destroy(`products/${publicId}`);
                 }
@@ -55,7 +55,17 @@ const ProductController={
                     return res.json({success:false,msg:"Error in Deleting Product Image from Cloudinary"});
                 }
             }
-            await product.deleteOne({_id:id});
+            // await User.updateMany(
+            //     { "cartItems.id": id }, 
+            //     { $pull: { cartItems: { id } } }
+            // );
+            await products.deleteOne();
+            let featuredProduct = await client.get("featuredProduct");
+            if (featuredProduct) {
+                featuredProduct = JSON.parse(featuredProduct);
+                const updatedFeaturedProduct = featuredProduct.filter(p => p._id !== id);                
+                await client.set("featuredProduct", JSON.stringify(updatedFeaturedProduct));
+            }
             return res.json({success:true,msg:"Product Deleted Successfully"});
         }
         catch(err){
@@ -80,8 +90,8 @@ const ProductController={
     async getProductCategory(req,res){
         const {category}=req.params;
         try{
-            const product=await Product.find({category});
-            res.json({success:true,product});
+            const products=await Product.find({category});
+            res.json({success:true,products});
         }
         catch(err){
             return res.json({success:false,msg:"Unable to fetch Product"});
@@ -99,6 +109,30 @@ const ProductController={
         }
         catch(err){
             return res.json({success:false,msg:"Error in Toogle Featured Product Controller"});
+        }
+    },
+    
+    async getRecommendedProducts(req,res){
+        try {
+            const products = await Product.aggregate([
+                {
+                    $sample: { size: 4 },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        image: 1,
+                        price: 1,
+                    },
+                },
+            ]);
+    
+            res.json(products);
+        } catch (error) {
+            console.log("Error in getRecommendedProducts controller", error.message);
+            res.status(500).json({ message: "Server error", error: error.message });
         }
     }
 }
