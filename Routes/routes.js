@@ -46,7 +46,7 @@ routes.get("/analysis-data",verifyAccessToken,adminAuth,async(req,res)=>{
         const startDate=new Date(endDate.getTime()-7*24*60*60*1000);
         const dailySalesData=await AnalyticsController.getDailySalesData(startDate,endDate);
         res.json({
-            analyticsdata,
+            analyticsData:analyticsdata,
             dailySalesData
         });
     }

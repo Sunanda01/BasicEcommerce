@@ -4,9 +4,10 @@ const connection=require('./Utils/connection');
 const cors=require('cors');
 const routes=require('./Routes/routes');
 const cookieParser=require('cookie-parser');
+const FRONTEND_URL=require('./Config/config').FRONTEND_URL;
 const app=express();
 app.use(cors({
-    origin: 'http://localhost:5176',
+    origin: FRONTEND_URL,
     credentials:true
 }));
 app.use(express.json({ limit: "10mb" }));

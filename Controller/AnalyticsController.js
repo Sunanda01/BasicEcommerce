@@ -2,14 +2,15 @@ const Order=require('../Model/Order');
 const Product=require('../Model/Product');
 const User=require('../Model/User');
 function getDatesInRange(startDate, endDate) {
-	const dates = [];
-	let currentDate = new Date(startDate);
-	while (currentDate <= endDate) {
-		dates.push(currentDate.toISOString().split("T")[0]);
-		currentDate.setDate(currentDate.getDate() + 1);
-	}
-	return dates;
+    const dates = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        dates.push(new Date(currentDate).toISOString().split("T")[0]); // Clone before modifying
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
 }
+
 const AnalyticsController={
     async getAnalyticsDetails(){
         const totalUsers = await User.countDocuments();
@@ -32,14 +33,14 @@ const AnalyticsController={
         };
     },
 
-    async getDailySalesData(startDate, endDate){
-        try{
+    async getDailySalesData(startDate, endDate) {
+        try {
             const dailySalesData = await Order.aggregate([
                 {
                     $match: {
                         createdAt: {
-                            $gte: startDate,
-                            $lte: endDate,
+                            $gte: new Date(startDate), // Ensure proper date conversion
+                            $lte: new Date(endDate),
                         },
                     },
                 },
@@ -52,6 +53,7 @@ const AnalyticsController={
                 },
                 { $sort: { _id: 1 } },
             ]);
+    
             const dateArray = getDatesInRange(startDate, endDate);
             return dateArray.map((date) => {
                 const foundData = dailySalesData.find((item) => item._id === date);
@@ -61,10 +63,10 @@ const AnalyticsController={
                     revenue: foundData?.revenue || 0,
                 };
             });
-        }
-        catch(err){
+        } catch (err) {
             throw err;
         }
     }
+    
 }
 module.exports=AnalyticsController;
