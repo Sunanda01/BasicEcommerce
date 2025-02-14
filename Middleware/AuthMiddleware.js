@@ -4,7 +4,7 @@ const User=require('../Model/User');
 const verifyAccessToken=async(req,res,next)=>{
     try{
         const accessToken=req.cookies.accessToken;
-        if(!accessToken) return res.json({success:false,msg:"No Access Token Found"});
+        if(!accessToken) return res.status(401).json({success:false,msg:"No Access Token Found"});
         const decodedToken=jwt.verify(accessToken,JWTHASHVALUE);
         const user=await User.findById(decodedToken.id);
         if(!user) return res.json({success:false,msg:"User Not Found"});

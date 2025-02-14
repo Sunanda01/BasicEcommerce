@@ -33,8 +33,8 @@ const OrderSchema=new mongoose.Schema({
     },
     stripeSessionId:{
         type:String,
-        unique:true,
-        index: true
+        unique:true
+
     },
 },{timestamps:true});
 module.exports=mongoose.model('Orders',OrderSchema);
